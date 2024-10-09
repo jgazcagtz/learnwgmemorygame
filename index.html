@@ -1,0 +1,63 @@
+<br><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnWG Memory Game - English</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LearnWG Memory Game - English</h1>
+            <p>Match the emoji with its word!</p>
+            <div class="scoreboard">
+                <span>Level: <span id="level">1</span></span>
+                <span>Score: <span id="score">0</span></span>
+                <span>Moves: <span id="moves">0</span></span>
+                <span>Time: <span id="timer">00:00</span></span>
+                <button id="restart">Restart</button>
+            </div>
+        </header>
+        <main>
+            <div class="game-board" id="game-board">
+                <!-- Cards will be generated here -->
+            </div>
+            <!-- Modal for Level Completion -->
+            <div class="modal" id="level-modal">
+                <div class="modal-content">
+                    <h2>Congratulations!</h2>
+                    <p id="modal-message">You have completed the level.</p>
+                    <button id="next-level">Next Level</button>
+                    <button id="play-again">Play Again</button>
+                </div>
+            </div>
+            <!-- Modal for Typing the Word -->
+            <div class="modal" id="input-modal">
+                <div class="modal-content">
+                    <h2>Well done!</h2>
+                    <p>Write the word in English:</p>
+                    <input type="text" id="user-input" placeholder="Type the word here">
+                    <button id="submit-input">Confirm</button>
+                </div>
+            </div>
+            <!-- Modal for Game Completion -->
+            <div class="modal" id="game-complete-modal">
+                <div class="modal-content">
+                    <h2>Game Completed!</h2>
+                    <p>You have completed all levels.</p>
+                    <p>Total Score: <span id="final-score">0</span></p>
+                    <button id="restart-game">Restart Game</button>
+                </div>
+            </div>
+        </main><br>
+        <footer>
+            <p>Developed with ❤️ by <a href="https://learnwithgeorge.site" target="_blank">LearnWG</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
