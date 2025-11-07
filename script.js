@@ -385,6 +385,10 @@ function setupLevel() {
         cardElement.dataset.id = card.id;
         cardElement.dataset.type = card.type;
         cardElement.dataset.pairId = card.pairId;
+        // Store the content in data attribute for easier access
+        if (card.type === 'word') {
+            cardElement.dataset.wordContent = card.content;
+        }
 
         cardElement.innerHTML = `
             <div class="front">${card.content}</div>
@@ -495,8 +499,18 @@ function promptUserInput() {
 
 // Handle user input for matched pair
 function handleUserInput() {
-    const userAnswer = userInput.value.trim().toLowerCase();
-    const correctWord = currentMatchedWord.toLowerCase();
+    if (!userInput.value || !userInput.value.trim()) {
+        // Empty input, don't do anything
+        return;
+    }
+    
+    const userAnswer = userInput.value.trim().toLowerCase().replace(/\s+/g, ' ');
+    const correctWord = currentMatchedWord.trim().toLowerCase().replace(/\s+/g, ' ');
+    
+    // Debug logging (can be removed in production)
+    console.log('User answer:', userAnswer);
+    console.log('Correct word:', correctWord);
+    console.log('Match:', userAnswer === correctWord);
 
     if (userAnswer === correctWord) {
         // Correct answer
@@ -564,11 +578,29 @@ function markAsMatched() {
 // Get the correct word for the current matched pair
 function getCorrectWord() {
     // Determine which card is the word
-    if (firstCard.dataset.type === 'word') {
-        return firstCard.textContent.trim();
-    } else {
-        return secondCard.textContent.trim();
+    let wordCard = firstCard.dataset.type === 'word' ? firstCard : secondCard;
+    
+    // First try to get from data attribute (most reliable)
+    if (wordCard.dataset.wordContent) {
+        const word = wordCard.dataset.wordContent.trim();
+        console.log('Extracted word from data attribute:', word);
+        return word;
     }
+    
+    // Fallback: get from front element
+    const frontElement = wordCard.querySelector('.front');
+    if (frontElement) {
+        const word = frontElement.textContent.trim();
+        console.log('Extracted word from front element:', word);
+        return word;
+    }
+    
+    // Last resort: get from textContent and clean it
+    const word = wordCard.textContent.trim();
+    // Remove the "?" from back if present
+    const cleanWord = word.replace(/\?/g, '').trim();
+    console.log('Extracted word from textContent:', cleanWord);
+    return cleanWord || word;
 }
 
 // Calculate score based on user input
