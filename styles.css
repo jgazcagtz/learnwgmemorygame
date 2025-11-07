@@ -323,6 +323,7 @@ header {
 /* Card Styling - Modern 3D Flip */
 .card {
     aspect-ratio: 1;
+    min-height: 120px;
     position: relative;
     cursor: pointer;
     transform-style: preserve-3d;
@@ -331,12 +332,16 @@ header {
     background: transparent;
 }
 
-.card:hover {
+.card:hover:not(.flip):not(.matched) {
     transform: translateY(-8px) scale(1.02);
 }
 
 .card.flip {
     transform: rotateY(180deg);
+}
+
+.card.flip:hover {
+    transform: rotateY(180deg) translateY(-4px) scale(1.01);
 }
 
 .card.matched {
@@ -382,7 +387,9 @@ header {
     -webkit-backdrop-filter: blur(10px);
     border: 2px solid var(--glass-border);
     color: var(--text-primary);
-    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    transform: rotateY(0deg);
 }
 
 .card.matched .front,

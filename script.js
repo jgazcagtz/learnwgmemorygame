@@ -388,7 +388,7 @@ function setupLevel() {
 
         cardElement.innerHTML = `
             <div class="front">${card.content}</div>
-            <div class="back"></div>
+            <div class="back">?</div>
         `;
 
         cardElement.style.opacity = '0';
