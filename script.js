@@ -15,6 +15,7 @@ const submitInputButton = document.getElementById('submit-input');
 const gameCompleteModal = document.getElementById('game-complete-modal');
 const finalScoreElement = document.getElementById('final-score');
 const restartGameButton = document.getElementById('restart-game');
+const progressFill = document.getElementById('progress-fill');
 
 // Updated Emoji and Spanish Words Array (Replaced some less common emojis with more common ones)
 // Updated Emoji and English Words Array
@@ -328,6 +329,7 @@ function initGame() {
     scoreElement.textContent = score;
     movesCounter.textContent = moves;
     timerElement.textContent = formatTime(seconds);
+    updateProgress();
     
     // Shuffle the entire wordPairs array to ensure randomness across all levels
     wordPairs = shuffle(wordPairs);
@@ -337,12 +339,19 @@ function initGame() {
     
     // Start the timer
     startTimer();
+    
+    // Close any open modals
+    hideModal(levelModal);
+    hideModal(gameCompleteModal);
+    hideModal(inputModal);
 }
 
 // Setup current level
 function setupLevel() {
     // Clear previous board
     gameBoard.innerHTML = '';
+    matches = 0;
+    updateProgress();
 
     // Determine number of pairs for the current level
     const startIndex = (currentLevel - 1) * pairsPerLevel;
@@ -369,8 +378,8 @@ function setupLevel() {
     // Shuffle the cards for the current level
     cardArray = shuffle(cardArray);
 
-    // Generate card elements
-    cardArray.forEach((card) => {
+    // Generate card elements with staggered animation
+    cardArray.forEach((card, index) => {
         const cardElement = document.createElement('div');
         cardElement.classList.add('card');
         cardElement.dataset.id = card.id;
@@ -382,8 +391,18 @@ function setupLevel() {
             <div class="back"></div>
         `;
 
+        cardElement.style.opacity = '0';
+        cardElement.style.transform = 'scale(0.8) translateY(20px)';
+        cardElement.style.transition = 'all 0.3s ease';
+        
         cardElement.addEventListener('click', flipCard);
         gameBoard.appendChild(cardElement);
+        
+        // Staggered animation
+        setTimeout(() => {
+            cardElement.style.opacity = '1';
+            cardElement.style.transform = 'scale(1) translateY(0)';
+        }, index * 30);
     });
 }
 
@@ -451,11 +470,29 @@ function resetBoard() {
     lockBoard = false;
 }
 
-// Prompt user to type the Spanish word after a match
+// Show modal with animation
+function showModal(modal) {
+    modal.setAttribute('aria-hidden', 'false');
+    modal.style.display = 'flex';
+    // Force reflow for animation
+    void modal.offsetWidth;
+}
+
+// Hide modal with animation
+function hideModal(modal) {
+    modal.setAttribute('aria-hidden', 'true');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// Prompt user to type the English word after a match
 function promptUserInput() {
-    inputModal.style.display = 'block';
+    showModal(inputModal);
     userInput.value = '';
-    userInput.focus();
+    setTimeout(() => {
+        userInput.focus();
+    }, 100);
 }
 
 // Handle user input for matched pair
@@ -465,20 +502,53 @@ function handleUserInput() {
 
     if (userAnswer === correctWord) {
         // Correct answer
-        score += calculateScore(true, seconds);
-        scoreElement.textContent = score;
-        inputModal.style.display = 'none';
+        const scoreIncrease = calculateScore(true, seconds);
+        const oldScore = score;
+        score += scoreIncrease;
+        // Animate score update
+        animateValue(scoreElement, oldScore, score, 500);
+        hideModal(inputModal);
         markAsMatched();
         checkLevelCompletion();
     } else {
-        // Incorrect answer, prompt to try again
-        alert('Incorrecto. Por favor, inténtalo de nuevo.');
+        // Incorrect answer, show error feedback
+        showErrorFeedback();
         // Flip the cards back and allow the user to attempt the match again
-        inputModal.style.display = 'none';
-        firstCard.classList.remove('flip');
-        secondCard.classList.remove('flip');
-        resetBoard();
+        hideModal(inputModal);
+        setTimeout(() => {
+            firstCard.classList.remove('flip');
+            secondCard.classList.remove('flip');
+            resetBoard();
+        }, 300);
     }
+}
+
+// Animate value change
+function animateValue(element, start, end, duration) {
+    const range = end - start;
+    const increment = range / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+            element.textContent = Math.round(end);
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.round(current);
+        }
+    }, 16);
+}
+
+// Show error feedback
+function showErrorFeedback() {
+    userInput.style.borderColor = '#f5576c';
+    userInput.style.animation = 'shake 0.5s';
+    
+    setTimeout(() => {
+        userInput.style.borderColor = '';
+        userInput.style.animation = '';
+    }, 500);
 }
 
 // Mark the matched cards as matched
@@ -487,6 +557,10 @@ function markAsMatched() {
     secondCard.classList.add('matched');
     resetBoard();
     matches++;
+    updateProgress();
+    
+    // Add celebration animation
+    createCelebrationEffect(firstCard);
 }
 
 // Get the correct word for the current matched pair
@@ -509,14 +583,59 @@ function calculateScore(isCorrect, timeTaken) {
     }
 }
 
+// Update progress bar
+function updateProgress() {
+    const progress = (matches / pairsPerLevel) * 100;
+    progressFill.style.width = `${progress}%`;
+}
+
+// Create celebration effect
+function createCelebrationEffect(card) {
+    const rect = card.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Create confetti-like particles
+    for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'fixed';
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.width = '8px';
+        particle.style.height = '8px';
+        particle.style.borderRadius = '50%';
+        particle.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        particle.style.pointerEvents = 'none';
+        particle.style.zIndex = '9999';
+        particle.style.transition = 'all 0.6s ease-out';
+        
+        document.body.appendChild(particle);
+        
+        const angle = (Math.PI * 2 * i) / 8;
+        const distance = 50 + Math.random() * 30;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        
+        setTimeout(() => {
+            particle.style.transform = `translate(${x}px, ${y}px) scale(0)`;
+            particle.style.opacity = '0';
+        }, 10);
+        
+        setTimeout(() => {
+            particle.remove();
+        }, 600);
+    }
+}
+
 // Check if the current level is completed after user input
 function checkLevelCompletion() {
     if (matches === pairsPerLevel) {
         // Level completed
         clearInterval(timer);
+        updateProgress(); // Ensure progress is 100%
         setTimeout(() => {
-            levelModal.style.display = 'block';
-            modalMessage.textContent = `Has completado el nivel ${currentLevel}.`;
+            showModal(levelModal);
+            modalMessage.textContent = `You have completed level ${currentLevel}!`;
         }, 500);
     }
 }
@@ -547,7 +666,7 @@ function pad(num) {
 
 // Proceed to next level
 function nextLevel() {
-    levelModal.style.display = 'none';
+    hideModal(levelModal);
     currentLevel++;
     if (currentLevel > totalLevels) {
         endGame();
@@ -558,6 +677,11 @@ function nextLevel() {
         levelElement.textContent = currentLevel;
         movesCounter.textContent = moves;
         timerElement.textContent = formatTime(seconds);
+        // Animate level change
+        levelElement.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+            levelElement.style.transform = 'scale(1)';
+        }, 300);
         setupLevel();
         resetTimer();
         startTimer();
@@ -566,14 +690,15 @@ function nextLevel() {
 
 // End game after final level
 function endGame() {
-    gameCompleteModal.style.display = 'block';
-    finalScoreElement.textContent = score;
+    showModal(gameCompleteModal);
+    // Animate final score
+    animateValue(finalScoreElement, 0, score, 1000);
 }
 
 // Play again from level 1
 function playAgain() {
-    levelModal.style.display = 'none';
-    gameCompleteModal.style.display = 'none';
+    hideModal(levelModal);
+    hideModal(gameCompleteModal);
     currentLevel = 1;
     score = 0;
     moves = 0;
@@ -602,11 +727,12 @@ function resetGame() {
     movesCounter.textContent = moves;
     timerElement.textContent = formatTime(seconds);
     wordPairs = shuffle(wordPairs); // Reshuffle all pairs for a fresh start
+    hideModal(levelModal);
+    hideModal(gameCompleteModal);
+    hideModal(inputModal);
     setupLevel();
     resetTimer();
     startTimer();
-    levelModal.style.display = 'none';
-    gameCompleteModal.style.display = 'none';
 }
 
 // Event Listeners
@@ -630,6 +756,37 @@ submitInputButton.addEventListener('click', () => {
 userInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         handleUserInput();
+    }
+});
+
+// Close modals when clicking backdrop
+document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', function() {
+        const modal = this.parentElement;
+        if (modal.id === 'input-modal') {
+            // Don't close input modal on backdrop click
+            return;
+        }
+        hideModal(modal);
+    });
+});
+
+// Close modals with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (inputModal.getAttribute('aria-hidden') === 'false') {
+            hideModal(inputModal);
+            // Flip cards back
+            if (firstCard && secondCard) {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
+                resetBoard();
+            }
+        } else if (levelModal.getAttribute('aria-hidden') === 'false') {
+            // Don't close level modal with Escape
+        } else if (gameCompleteModal.getAttribute('aria-hidden') === 'false') {
+            // Don't close game complete modal with Escape
+        }
     }
 });
 

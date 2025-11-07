@@ -1,60 +1,114 @@
-<br><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn English with fun memory matching game - Match emojis with words!">
     <title>LearnWG Memory Game - English</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="background-animation"></div>
     <div class="container">
         <header>
-            <h1>Memory Game - English</h1>
-            <p>Match the emoji with its word!</p>
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>
+                        <span class="gradient-text">Memory Game</span>
+                        <span class="subtitle">English Learning</span>
+                    </h1>
+                </div>
+                <p class="tagline">Match the emoji with its word and type it correctly!</p>
+            </div>
             <div class="scoreboard">
-                <span>Level: <span id="level">1</span></span>
-                <span>Score: <span id="score">0</span></span>
-                <span>Moves: <span id="moves">0</span></span>
-                <span>Time: <span id="timer">00:00</span></span>
-                <button id="restart">Restart</button>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Level</span>
+                        <span class="stat-value" id="level">1</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Score</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔄</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Moves</span>
+                        <span class="stat-value" id="moves">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Time</span>
+                        <span class="stat-value" id="timer">00:00</span>
+                    </div>
+                </div>
+                <button id="restart" class="restart-btn" aria-label="Restart game">
+                    <span>🔄</span>
+                    <span>Restart</span>
+                </button>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
             </div>
         </header>
         <main>
-            <div class="game-board" id="game-board">
+            <div class="game-board" id="game-board" role="grid" aria-label="Memory game cards">
                 <!-- Cards will be generated here -->
             </div>
             <!-- Modal for Level Completion -->
-            <div class="modal" id="level-modal">
+            <div class="modal" id="level-modal" role="dialog" aria-labelledby="level-modal-title" aria-hidden="true">
+                <div class="modal-backdrop"></div>
                 <div class="modal-content">
-                    <h2>Congratulations!</h2>
+                    <div class="modal-icon">🎉</div>
+                    <h2 id="level-modal-title">Congratulations!</h2>
                     <p id="modal-message">You have completed the level.</p>
-                    <button id="next-level">Next Level</button>
-                    <button id="play-again">Play Again</button>
+                    <div class="modal-buttons">
+                        <button id="next-level" class="btn-primary">Next Level →</button>
+                        <button id="play-again" class="btn-secondary">Play Again</button>
+                    </div>
                 </div>
             </div>
             <!-- Modal for Typing the Word -->
-            <div class="modal" id="input-modal">
+            <div class="modal" id="input-modal" role="dialog" aria-labelledby="input-modal-title" aria-hidden="true">
+                <div class="modal-backdrop"></div>
                 <div class="modal-content">
-                    <h2>Well done!</h2>
+                    <div class="modal-icon">✍️</div>
+                    <h2 id="input-modal-title">Well done!</h2>
                     <p>Write the word in English:</p>
-                    <input type="text" id="user-input" placeholder="Type the word here">
-                    <button id="submit-input">Confirm</button>
+                    <div class="input-wrapper">
+                        <input type="text" id="user-input" placeholder="Type the word here" autocomplete="off" autofocus>
+                        <button id="submit-input" class="btn-primary">Confirm</button>
+                    </div>
                 </div>
             </div>
             <!-- Modal for Game Completion -->
-            <div class="modal" id="game-complete-modal">
+            <div class="modal" id="game-complete-modal" role="dialog" aria-labelledby="game-complete-title" aria-hidden="true">
+                <div class="modal-backdrop"></div>
                 <div class="modal-content">
-                    <h2>Game Completed!</h2>
+                    <div class="modal-icon">🏆</div>
+                    <h2 id="game-complete-title">Game Completed!</h2>
                     <p>You have completed all levels.</p>
-                    <p>Total Score: <span id="final-score">0</span></p>
-                    <button id="restart-game">Restart Game</button>
+                    <div class="final-score">
+                        <span class="final-score-label">Total Score</span>
+                        <span class="final-score-value" id="final-score">0</span>
+                    </div>
+                    <button id="restart-game" class="btn-primary">Restart Game</button>
                 </div>
             </div>
-        </main><br>
+        </main>
         <footer>
-            <p>Developed with ❤️ by <a href="https://learnwg.vercel.app/" target="_blank">LearnWG</a></p>
+            <p>Developed with <span class="heart">❤️</span> by <a href="https://learnwg.vercel.app/" target="_blank" rel="noopener noreferrer">LearnWG</a></p>
         </footer>
     </div>
 
