@@ -392,16 +392,14 @@ function setupLevel() {
         `;
 
         cardElement.style.opacity = '0';
-        cardElement.style.transform = 'scale(0.8) translateY(20px)';
-        cardElement.style.transition = 'all 0.3s ease';
+        cardElement.style.transition = 'opacity 0.3s ease';
         
         cardElement.addEventListener('click', flipCard);
         gameBoard.appendChild(cardElement);
         
-        // Staggered animation
+        // Staggered animation - only animate opacity, not transform (to preserve 3D flip)
         setTimeout(() => {
             cardElement.style.opacity = '1';
-            cardElement.style.transform = 'scale(1) translateY(0)';
         }, index * 30);
     });
 }
